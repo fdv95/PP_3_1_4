@@ -4,7 +4,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.fadeev.pp_3_1_2.dao.UserRepository;
 import ru.fadeev.pp_3_1_2.model.User;
 import ru.fadeev.pp_3_1_2.service.RoleService;
 import ru.fadeev.pp_3_1_2.service.UserService;
@@ -18,13 +17,10 @@ import java.util.Map;
 public class AdminController {
     private final UserService userService;
     private final RoleService roleService;
-    private final UserRepository userRepository;
 
-    public AdminController(UserService userService, RoleService roleService,
-                           UserRepository userRepository) {
+    public AdminController(UserService userService, RoleService roleService) {
         this.userService = userService;
         this.roleService = roleService;
-        this.userRepository = userRepository;
     }
 
     @GetMapping(value = "")
@@ -46,7 +42,7 @@ public class AdminController {
         if (bindingResult.hasErrors()) {
             return "new";
         }
-        User userFromDb = userRepository.findByUsername(user.getUsername());
+        User userFromDb = userService.findByUsername(user.getUsername());
         if (userFromDb != null) {
             model.put("message", "User exists!");
             return "new";
