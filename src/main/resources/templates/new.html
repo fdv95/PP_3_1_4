@@ -23,6 +23,7 @@
     <label for="username">Enter username: </label>
     <input type="text" th:field="*{username}" id="username"/>
     <div style="color:red" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+    <nobr style="color:red" th:text="${message}"></nobr>
     <br/>
     <label for="password">Enter password: </label>
     <input type="password" th:field="*{password}" id="password"/>

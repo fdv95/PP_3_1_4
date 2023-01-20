@@ -34,10 +34,10 @@ public class User implements UserDetails {
     @Size(min = 2, message = "Поле должно создержать не менее 2 знаков")
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
 
@@ -98,46 +98,21 @@ public class User implements UserDetails {
         return roles;
     }
 
-
-    public void setRoles(String[] roles) {
+        public void setRoles(String[] roles) {
         Set<Role> roleSet = new HashSet<>();
         for (String role : roles) {
             if (role != null) {
                 if (role.equals("ROLE_ADMIN")) {
-                    roleSet.add(new Role(1L, role));
+                    roleSet.add(new Role(1L,role));
                 }
                 if (role.equals("ROLE_USER")) {
-                    roleSet.add(new Role(2L, role));
+                    roleSet.add(new Role(2L,role));
                 }
             }
             this.roles = roleSet;
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return id == user.id && age == user.age && Objects.equals(name, user.name) && Objects.equals(lastName, user.lastName);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, lastName, age);
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", age=" + age +
-                '}';
-    }
-
-    ///////////////////////////////// Методы UserDetails ///////////////////////////////////////////
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getRoles();
@@ -171,5 +146,31 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return age == user.age && Objects.equals(id, user.id) && Objects.equals(name, user.name) &&
+                Objects.equals(lastName, user.lastName) && Objects.equals(username, user.username) &&
+                Objects.equals(password, user.password) && Objects.equals(roles, user.roles);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, lastName, age, username, password, roles);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", age=" + age +
+                '}';
     }
 }

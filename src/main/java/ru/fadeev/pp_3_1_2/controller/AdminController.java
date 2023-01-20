@@ -4,11 +4,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.fadeev.pp_3_1_2.dao.UserRepository;
 import ru.fadeev.pp_3_1_2.model.User;
 import ru.fadeev.pp_3_1_2.service.RoleService;
 import ru.fadeev.pp_3_1_2.service.UserService;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 
 @Controller
@@ -16,10 +18,13 @@ import javax.validation.Valid;
 public class AdminController {
     private final UserService userService;
     private final RoleService roleService;
+    private final UserRepository userRepository;
 
-    public AdminController(UserService userService, RoleService roleService) {
+    public AdminController(UserService userService, RoleService roleService,
+                           UserRepository userRepository) {
         this.userService = userService;
         this.roleService = roleService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping(value = "")
@@ -36,8 +41,14 @@ public class AdminController {
     }
 
     @PostMapping
-    public String addNewUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
+    public String addNewUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult,
+                             Map<String, Object> model) {
         if (bindingResult.hasErrors()) {
+            return "new";
+        }
+        User userFromDb = userRepository.findByUsername(user.getUsername());
+        if (userFromDb != null) {
+            model.put("message", "User exists!");
             return "new";
         }
         userService.addUser(user);
@@ -53,8 +64,13 @@ public class AdminController {
 
     @PatchMapping("/edit/{id}")
     public String updateUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult,
-                             @PathVariable("id") Long id) {
+                             @PathVariable("id") Long id, Map<String, Object> model) {
         if (bindingResult.hasErrors()) {
+            return "edit";
+        }
+        User userFromDb = userService.findByUsername(user.getUsername());
+        if (userFromDb != null && !userFromDb.getId().equals(user.getId())) {
+            model.put("message", "User exists!");
             return "edit";
         }
         userService.updateUser(user);

@@ -62,7 +62,6 @@ public class Role implements GrantedAuthority {
         return getName();
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
