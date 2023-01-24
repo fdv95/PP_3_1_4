@@ -7,6 +7,7 @@ import ru.fadeev.pp_3_1_2.service.RoleService;
 import ru.fadeev.pp_3_1_2.service.UserService;
 
 import javax.annotation.PostConstruct;
+import java.util.HashSet;
 import java.util.Set;
 
 @Component
@@ -21,11 +22,24 @@ public class Init {
 
     @PostConstruct
     public void initializeDB() {
-        roleService.addRole(new Role("ROLE_ADMIN"));
-        roleService.addRole(new Role("ROLE_USER"));
-        userService.addUser(new User("name1", "lastname1", 20, "admin",
-                "admin", Set.of(new Role(1L, "ROLE_ADMIN"))));
-        userService.addUser(new User("name2", "lastname2", 20, "user1",
-                "user1", Set.of(new Role(2L, "ROLE_USER"))));
+        Role roleAdmin = new Role("ROLE_ADMIN");
+        Role roleUser = new Role("ROLE_USER");
+
+        Set<Role> roleAdminSet = new HashSet<>();
+        Set<Role> roleUserSet = new HashSet<>();
+
+        roleAdminSet.add(roleAdmin);
+        roleUserSet.add(roleUser);
+
+        User admin = new User("admin", "admin", 22,
+                "admin@mail.ru", "admin", roleAdminSet);
+
+        User user = new User("user", "user", 22,
+                "user@mail.ru", "user", roleUserSet);
+
+        roleService.addRole(roleAdmin);
+        roleService.addRole(roleUser);
+        userService.addUser(admin);
+        userService.addUser(user);
     }
 }

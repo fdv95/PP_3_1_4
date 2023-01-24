@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.util.Collection;
@@ -27,9 +28,9 @@ public class User implements UserDetails {
     @Column(name = "age")
     @Min(value = 0, message = "Возраст не может быть меньше 0")
     private int age;
-    @Column(name = "username")
-    @Size(min = 2, message = "Поле должно создержать не менее 2 знаков")
-    private String username;
+    @Column(name = "email")
+    @Email(message = "Некорректный ввод email")
+    private String email;
     @Column(name = "password")
     @Size(min = 2, message = "Поле должно создержать не менее 2 знаков")
     private String password;
@@ -44,11 +45,11 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String name, String lastName, int age, String username, String password, Set<Role> roles) {
+    public User(String name, String lastName, int age, String email, String password, Set<Role> roles) {
         this.name = name;
         this.lastName = lastName;
         this.age = age;
-        this.username = username;
+        this.email = email;
         this.password = password;
         this.roles = roles;
     }
@@ -85,32 +86,39 @@ public class User implements UserDetails {
         this.age = age;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public Set<Role> getRoles() {
         return roles;
     }
 
-        public void setRoles(String[] roles) {
+    public void setRoles(String[] roles) {
         Set<Role> roleSet = new HashSet<>();
         for (String role : roles) {
             if (role != null) {
                 if (role.equals("ROLE_ADMIN")) {
-                    roleSet.add(new Role(1L,role));
+                    roleSet.add(new Role(1L, role));
                 }
                 if (role.equals("ROLE_USER")) {
-                    roleSet.add(new Role(2L,role));
+                    roleSet.add(new Role(2L, role));
                 }
             }
             this.roles = roleSet;
         }
+    }
+
+    public String convertRolesToString() {
+        return getRoles().toString().replaceAll("^\\[|\\]$", "").replace("ROLE_", "");
     }
 
     @Override
@@ -125,7 +133,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
 
     @Override
@@ -155,13 +163,13 @@ public class User implements UserDetails {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return age == user.age && Objects.equals(id, user.id) && Objects.equals(name, user.name) &&
-                Objects.equals(lastName, user.lastName) && Objects.equals(username, user.username) &&
+                Objects.equals(lastName, user.lastName) && Objects.equals(email, user.email) &&
                 Objects.equals(password, user.password) && Objects.equals(roles, user.roles);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, lastName, age, username, password, roles);
+        return Objects.hash(id, name, lastName, age, email, password, roles);
     }
 
     @Override
